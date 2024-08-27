@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@google-cloud/aiplatform": "^3.25.0",
+    "@google-cloud/firestore": "^7.9.0",
+    "@google-cloud/vertexai": "^1.5.0",
+    "next": "latest",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "22.0.1",
+    "@types/react": "18.3.3",
+    "typescript": "5.5.4"
+  }
+}

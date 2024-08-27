@@ -1,0 +1,31 @@
+/*
+This global.css file is applied on all pages.
+*/
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-size: 18px;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    Segoe UI,
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    Fira Sans,
+    Droid Sans,
+    Helvetica Neue,
+    sans-serif;
+    font-optical-sizing: auto;
+}
+
+a {
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
