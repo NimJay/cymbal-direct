@@ -1,4 +1,20 @@
 # Special file on MacOS
 .DS_Store
 
+# Next.js app
+# Most of these entries were taken from the .gitignore of the
+# Next.js app that we generated using npx create-next-app@latest
+.env.development.local
+.env.local
+.env.production.local
+.env.test.local
+.next/
+.pnp
+.pnp.js
+nextjs-app/build
+nextjs-app/coverage
+nextjs-app/out/
 node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
