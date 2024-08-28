@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from './chatbox-section.module.css';
+import { Message } from "../conversation";
+import { activePrompt } from "../active-prompt";
 
-interface Message {
-  isByBot: boolean;
-  text: string;
-}
+const FIRST_MESSAGE_BY_BOT: Message = {
+  text: activePrompt.firstMessageByBot,
+  isByBot: true,
+  createTime: 0, // This Message object is never stored in the backend, so we use placeholder, 0
+};
 
 function MessageLi({ message }: { message: Message }) {
   return (
@@ -17,8 +20,9 @@ function MessageLi({ message }: { message: Message }) {
 }
 
 export default function ChatbotSection() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoadingInitialData, setIsLoadingInitialData] = useState<boolean>(true);
+  // We'll only have a conversationId after the user sends their first message
+  const [conversationId, setConversationId] = useState<string[]>();
+  const [messages, setMessages] = useState<Message[]>([FIRST_MESSAGE_BY_BOT]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   // We have a message already typed out for demo purposes
   const initialMessageText = "Do you have physical stores?";
@@ -34,12 +38,17 @@ export default function ChatbotSection() {
     setIsSubmitting(true);
     const responseAsJson = await fetch('/api/send-message', {
       method: 'POST',
-      body: JSON.stringify({ conversationId: 'Placeholder', messageText }),
+      body: JSON.stringify({ conversationId: conversationId, messageText }),
     });
     try {
       const response = await responseAsJson.json();
-      if (!response.responseFromBot) {
+      if (!response.conversationId || !response.responseFromBot) {
         setErrorMessage("Oh no! Something went wrong.");
+        return;
+      }
+      if (!conversationId) {
+        // The user's first message (the backend has created a Conversation)
+        setConversationId(conversationId);
       }
       messages.push(response.message);
       messages.push(response.responseFromBot);
@@ -54,31 +63,6 @@ export default function ChatbotSection() {
   const messagesLis = messages.map((message, index) => {
     return <MessageLi message={message} key={index} />;
   });
-
-  useEffect(() => {
-    const fetchConversation = async () => {
-      try {
-        const response = await fetch('/api/conversation');
-        if (!response.ok) {
-          throw new Error('Failed to fetch conversation');
-        }
-        const { conversations } = await response.json();
-        console.log(conversations);
-        setMessages(conversations[0].messages);
-      } catch (err) {
-        setErrorMessage((err as Error).message || 'An unknown error occurred');
-      } finally {
-        setIsLoadingInitialData(false);
-      }
-    };
-    fetchConversation();
-  }, []);
-
-  if (isLoadingInitialData) {
-    return (
-      <section className={styles.chatboxSection}>Loading chat...</section>
-    );
-  }
 
   return (
     <section className={styles.chatboxSection}>

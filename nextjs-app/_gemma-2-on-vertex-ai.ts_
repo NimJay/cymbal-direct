@@ -1,0 +1,62 @@
+/*
+This file provides an interface for interacting with Google Cloud.
+This file shouldn't know that we're building a chat app.
+*/
+
+import { Message } from "./conversation";
+
+const { PredictionServiceClient } = require("@google-cloud/aiplatform").v1;
+const { helpers } = require("@google-cloud/aiplatform");
+
+async function fetchResponseFromGemma2(prompt: string) {
+  // Most Google Cloud resources are hosted in a specific region or zone
+  const region = "us-west1";
+  // Most Google Cloud resources exist in a Google Cloud project
+  // Each project has a unique "project ID" and a unique "project number"
+  const projectNumber = "619304740008";
+  // To expose a machine learning model (such as Gemma 2) to your app, you need to
+  // deploy the model to a Vertex AI endpoint
+  const endpointId = "9124684271192113152";
+  const apiEndpoint = `${region}-aiplatform.googleapis.com`;
+
+  // Create the request
+  const endpoint = `projects/${projectNumber}/locations/${region}/endpoints/${endpointId}`;
+  const request = {
+    endpoint,
+    instances: [helpers.toValue({ prompt, max_tokens: 1000 })],
+    max_tokens: 1000,
+  };
+
+  // Make prediction (send request to the Gemma 2 Vertex AI endpoint)
+  const predictionServiceClient = new PredictionServiceClient({ apiEndpoint });
+  const [response] = await predictionServiceClient.predict(request);
+  return response.predictions[0].stringValue;
+}
+
+function buildPrompt(messages: Message[]): string {
+  let prompt = `
+You are a helpful assistant (chat bot) for Cymbal Direct.
+
+About Cymbal Direct
+Cymbal Direct is an online direct-to-consumer footwear and apparel retailer headquartered in Chicago.
+Founded in 2008, Cymbal Direct (originally 'Antern') is a fair trade and B Corp certified sustainability-focused company that works with cotton farmers to reinvest in their communities.
+In 2010, as Cymbal Group began focusing on digitally-savvy businesses that appealed to a younger demographic of shoppers, the holding company acquired Antern and renamed it Cymbal Direct. In 2019, Cymbal Direct reported an annual revenue of $7 million and employed a total of 32 employees.
+Cymbal Direct is a digitally native retailer.
+
+Provide the next message in this sequence of messages.`;
+  for (const message of messages) {
+    prompt += `<start_of_turn>${message.isByBot ? "Assistant" : "Customer"}\n`;
+    prompt += `${message.text}<end_of_turn>`;
+  }
+  prompt += `<start_of_turn>Assistant`;
+  return prompt;
+}
+
+async function generateNextMessageUsingGemma2(messages: Message[]) {
+  const prompt = buildPrompt(messages);
+  console.log({ prompt });
+  const responseFromGemma2 = await fetchResponseFromGemma2(prompt);
+  return responseFromGemma2;
+}
+
+export { generateNextMessageUsingGemma2 };

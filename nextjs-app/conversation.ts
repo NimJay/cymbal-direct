@@ -1,4 +1,5 @@
 interface Conversation {
+  id: string;
   messages: Message[];
 }
 

@@ -43,4 +43,10 @@ async function getAll(collectionName: string) {
   }
 }
 
-export { getAll };
+async function getById(collectionName: string, id: string): Promise<object | undefined> {
+  const firestoreDb = getFirestoreDatabase();
+  const snapshot = await firestoreDb.collection(collectionName).doc(id).get();
+  return snapshot.data();
+}
+
+export { getAll, getById };
