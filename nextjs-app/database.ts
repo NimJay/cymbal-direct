@@ -19,7 +19,7 @@ function getFirestoreDatabase() {
   return firestoreDb;
 }
 
-async function getAll(collectionName: string) {
+async function getAllDocuments(collectionName: string) {
   try {
     const firestoreDb = getFirestoreDatabase();
     const collectionRef = firestoreDb.collection(collectionName);
@@ -43,10 +43,22 @@ async function getAll(collectionName: string) {
   }
 }
 
-async function getById(collectionName: string, id: string): Promise<object | undefined> {
+async function getDocumentById(collectionName: string, id: string): Promise<object | undefined> {
   const firestoreDb = getFirestoreDatabase();
   const snapshot = await firestoreDb.collection(collectionName).doc(id).get();
   return snapshot.data();
 }
 
-export { getAll, getById };
+async function createDocument(collectionName: string, document: { id: string }): Promise<void> {
+  const firestoreDb = getFirestoreDatabase();
+  const documentRef = firestoreDb.collection(collectionName).doc(document.id);
+  await documentRef.set(document);
+}
+
+async function updateDocument(collectionName: string, document: { id: string }): Promise<void> {
+  const firestoreDb = getFirestoreDatabase();
+  const documentRef = firestoreDb.collection(collectionName).doc(document.id);
+  await documentRef.update(document);
+}
+
+export { createDocument, getAllDocuments, getDocumentById, updateDocument };

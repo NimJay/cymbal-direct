@@ -38,7 +38,7 @@ export default function ChatbotSection() {
     setIsSubmitting(true);
     const responseAsJson = await fetch('/api/send-message', {
       method: 'POST',
-      body: JSON.stringify({ conversationId: conversationId, messageText }),
+      body: JSON.stringify({ conversationId, messageText }),
     });
     try {
       const response = await responseAsJson.json();
@@ -48,7 +48,7 @@ export default function ChatbotSection() {
       }
       if (!conversationId) {
         // The user's first message (the backend has created a Conversation)
-        setConversationId(conversationId);
+        setConversationId(response.conversationId);
       }
       messages.push(response.message);
       messages.push(response.responseFromBot);
