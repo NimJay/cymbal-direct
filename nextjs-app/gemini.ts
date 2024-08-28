@@ -4,7 +4,7 @@ This file interfaces with the Gemini (large language model) on Google Cloud.
 
 import { activePrompt } from "./active-prompt";
 import { Message } from "./conversation";
-import { GenerateContentRequest, VertexAI, HarmBlockThreshold, SafetySetting, HarmCategory, IllegalArgumentError } from '@google-cloud/vertexai';
+import { GenerateContentRequest, VertexAI, HarmBlockThreshold, SafetySetting, HarmCategory, IllegalArgumentError, Content } from '@google-cloud/vertexai';
 
 const generationConfig = {
   temperature: 0.2, // Lower values = less creative, more predictable, more factually accurate
@@ -12,14 +12,13 @@ const generationConfig = {
   maxOutputTokens: 500,
 };
 
-function buildContentToSendToGemini(messages: Message[]): string {
-  let prompt = `${activePrompt.systemInstructions}`;
+function buildContentToSendToGemini(messages: Message[]): Content[] {
+  let content: Content[] = [];
   for (const message of messages) {
-    prompt += `<start_of_turn>${message.isByBot ? "Assistant" : "Customer"}\n`;
-    prompt += `${message.text}<end_of_turn>`;
+    const role = message.isByBot ? "model" : "user";
+    content.push({ role, parts: [{ text: message.text }] });
   }
-  prompt += `<start_of_turn>Assistant`;
-  return prompt;
+  return content;
 }
 
 const safetySettings: SafetySetting[] = [
@@ -42,12 +41,12 @@ const safetySettings: SafetySetting[] = [
 ];
 
 async function generateNextMessageUsingGemini(messages: Message[]) {
-  const prompt = buildContentToSendToGemini(messages);
-  const responseFromGemini = await fetchResponseFromGemini(prompt);
+  const contents = buildContentToSendToGemini(messages);
+  const responseFromGemini = await fetchResponseFromGemini(contents);
   return responseFromGemini;
 }
 
-async function fetchResponseFromGemini(prompt: string): Promise<string> {
+async function fetchResponseFromGemini(contents: Content[]): Promise<string> {
   // The GOOGLE_CLOUD_PROJECT environment variable is automatically set by Google Cloud
   // for containers you run inside Cloud Run.
   const googleCloudProjectId = process.env.GOOGLE_CLOUD_PROJECT;
@@ -55,12 +54,13 @@ async function fetchResponseFromGemini(prompt: string): Promise<string> {
     const vertexAI = new VertexAI({ project: googleCloudProjectId, location: `us-central1` });
     const generativeModel = vertexAI.preview.getGenerativeModel({ model: `gemini-1.5-flash-001` });
     const request: GenerateContentRequest = {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      systemInstruction: activePrompt.systemInstructions,
+      contents,
       generationConfig,
       safetySettings,
     };
     // Send request to Gemini
-    console.debug(`Sending message to Gemini:\n ${prompt}`);
+    console.log(`Sending message to Gemini containing ${contents} Contents.`);
     const result = await generativeModel.generateContent(request);
     if (result && result.response && result.response.candidates && result.response.candidates[0]) {
       const parts = result.response.candidates[0].content.parts;
