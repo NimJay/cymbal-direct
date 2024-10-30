@@ -11,13 +11,17 @@ You can run the app on your local machine.
 1. Install Node.js (version 20).
 2. Move into this folder:
    ```
-   cd nextjs-app/nextjs/
+   cd nextjs-app/
    ```
 3. Set the `GOOGLE_CLOUD_PROJECT` environment variable:
    ```
    export GOOGLE_CLOUD_PROJECT=my-project-id
    ``
-4. Start the Next.js application's development server:
+4. If you haven't already done so, install the Node.js dependencies:
+   ```
+   npm install
+   ```
+5. Start the Next.js application's development server:
    ```
    npm run dev
    ```
