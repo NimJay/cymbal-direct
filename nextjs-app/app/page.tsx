@@ -4,6 +4,7 @@ import '../styles/global.css';
 import styles from './page.module.css';
 import Head from 'next/head';
 import ChatbotSection from "../components/chatbox-section";
+import PlaceholderProductsSection from '../components/placeholder-products-section';
 
 export default function HomePage() {
   return (
@@ -20,6 +21,7 @@ export default function HomePage() {
         </div>
       </header>
       <main>
+        <PlaceholderProductsSection />
         <ChatbotSection />
       </main>
     </div>

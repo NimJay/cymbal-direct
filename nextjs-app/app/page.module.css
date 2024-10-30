@@ -1,14 +1,19 @@
+.homePage {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
 .homePage header {
   height: 60px;
   box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+  background-color: white;
 }
 
 .homePage header div {
   margin: auto;
-  max-width: 1000px;
+  max-width: 1200px;
 }
 
 .homePage header div img {
-  height: 40px;
-  margin: 10px;
+  height: 38px;
+  margin: 11px;
 }
