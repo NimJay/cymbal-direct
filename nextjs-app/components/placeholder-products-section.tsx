@@ -1,18 +1,8 @@
 'use client';
 
 import styles from './placeholder-products-section.module.css';
+import { PRODUCTS } from '../products';
 
-const PRODUCTS = [
-  { name: 'Beige loafers', price: 50.00, imageHref: '/products/beige-loafers.png' },
-  { name: 'Black boots', price: 80.00, imageHref: '/products/black-boots.png' },
-  { name: 'Purple sneakers', price: 60.00, imageHref: '/products/purple-sneakers.png' },
-  { name: 'White boots', price: 70.00, imageHref: '/products/white-boots.png' },
-  { name: 'Pink running shoes', price: 90.00, imageHref: '/products/pink-running-shoes.png' },
-  { name: 'Long black boots', price: 75.00, imageHref: '/products/long-black-boots.png' },
-  { name: 'Brown loafers', price: 55.00, imageHref: '/products/brown-loafers.png' },
-  { name: 'Purple flats', price: 65.00, imageHref: '/products/purple-flats.png' },
-  { name: 'White sneakers', price: 75.00, imageHref: '/products/white-sneakers.png' },
-];
 
 export default function PlaceholderProductsSection() {
   const productsLis = PRODUCTS.map((product, index) => {
