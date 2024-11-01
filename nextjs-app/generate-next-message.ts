@@ -11,7 +11,7 @@ import { fetchResponseFromGemini } from "./gemini";
 function buildContentToSendToGemini(messages: Message[]): Content[] {
   let content: Content[] = [];
   for (const message of messages) {
-    const role = message.isByBot ? "model" : "user";
+    const role = message.isByBot ? "ASSISTANT" : "USER";
     content.push({ role, parts: [{ text: message.text }] });
   }
   return content;
