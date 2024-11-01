@@ -21,3 +21,13 @@ yarn-error.log*
 
 # We use this for local, work-in-progress fiddling with code
 playground/
+
+# Terraform
+**/.terraform/*
+terraform/**/*.log
+terraform/**/*manifest.json
+terraform/entire-tf-output
+**/entire-tf-output
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
