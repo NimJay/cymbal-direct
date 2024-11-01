@@ -3,7 +3,6 @@ This file interfaces with the Gemini (large language model) on Google Cloud.
 */
 
 import { activePrompt } from "./active-prompt";
-import { Message } from "./conversation";
 import { GenerateContentRequest, VertexAI, HarmBlockThreshold, SafetySetting, HarmCategory, IllegalArgumentError, Content } from '@google-cloud/vertexai';
 
 const generationConfig = {
@@ -11,15 +10,6 @@ const generationConfig = {
   topP: 0.2, // Lower values = less creative, more predictable, more factually accurate
   maxOutputTokens: 500,
 };
-
-function buildContentToSendToGemini(messages: Message[]): Content[] {
-  let content: Content[] = [];
-  for (const message of messages) {
-    const role = message.isByBot ? "model" : "user";
-    content.push({ role, parts: [{ text: message.text }] });
-  }
-  return content;
-}
 
 const safetySettings: SafetySetting[] = [
   {
@@ -40,13 +30,9 @@ const safetySettings: SafetySetting[] = [
   },
 ];
 
-async function generateNextMessageUsingGemini(messages: Message[]) {
-  const contents = buildContentToSendToGemini(messages);
-  const responseFromGemini = await fetchResponseFromGemini(contents);
-  return responseFromGemini;
-}
-
-async function fetchResponseFromGemini(contents: Content[]): Promise<string> {
+async function fetchResponseFromGemini(
+  systemInstruction: string, contents: Content[],
+): Promise<string> {
   // The GOOGLE_CLOUD_PROJECT environment variable is automatically set by Google Cloud
   // for containers you run inside Cloud Run.
   const googleCloudProjectId = process.env.GOOGLE_CLOUD_PROJECT;
@@ -54,7 +40,7 @@ async function fetchResponseFromGemini(contents: Content[]): Promise<string> {
     const vertexAI = new VertexAI({ project: googleCloudProjectId, location: `us-central1` });
     const generativeModel = vertexAI.preview.getGenerativeModel({ model: `gemini-1.5-flash-001` });
     const request: GenerateContentRequest = {
-      systemInstruction: activePrompt.systemInstructions,
+      systemInstruction,
       contents,
       generationConfig,
       safetySettings,
@@ -84,4 +70,4 @@ async function fetchResponseFromGemini(contents: Content[]): Promise<string> {
   return "";
 }
 
-export { generateNextMessageUsingGemini };
+export { fetchResponseFromGemini };

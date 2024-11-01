@@ -6,7 +6,7 @@ import { randomUUID } from "crypto";
 import { activePrompt } from "../../../active-prompt";
 import { Conversation } from "../../../conversation";
 import { createDocument, getDocumentById, updateDocument } from "../../../database";
-import { generateNextMessageUsingGemini } from "../../../gemini";
+import { generateNextMessageUsingGemini } from "../../../generate-next-message";
 
 export async function POST(request: Request) {
   const { conversationId, messageText } = await request.json() as { conversationId: string; messageText: string };
