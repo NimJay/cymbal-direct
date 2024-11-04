@@ -19,9 +19,11 @@ async function buildContentsToSendToGemini(messages: Message[]): Promise<Content
 }
 
 async function buildStringListingRelatedProducts(messages: Message[]): Promise<string> {
-  const latestMessage = messages[messages.length - 1].text;
+  // Find the products most related to the last six messages (from both the user and the model).
+  // Using multiple messages allows for better multi-turn conversation.
+  const lastSixMessages = concatLastSixMessagesInReverse(messages);
   let string = `You may find the following list of products related to the user's query useful:`;
-  const relatedProducts = await getProductsRelatedToText(latestMessage);
+  const relatedProducts = await getProductsRelatedToText(lastSixMessages);
   if (relatedProducts.length === 0) {
     return '';
   }
@@ -34,6 +36,11 @@ async function buildStringListingRelatedProducts(messages: Message[]): Promise<s
     };
   });
   return string + `\n${JSON.stringify(cleanedProductObjects)}\n`;
+}
+
+function concatLastSixMessagesInReverse(messages: Message[]): string {
+  const lastSixMessages = messages.slice(-6).reverse();
+  return lastSixMessages.map(message => message.text).join('\n');
 }
 
 async function generateNextMessageUsingGemini(messages: Message[]) {
