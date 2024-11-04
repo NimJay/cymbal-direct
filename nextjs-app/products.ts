@@ -1,7 +1,20 @@
+/*
+For now, we maintain the list of products in this file.
+In the future, we may need to refactor this to reflect real-world practices and store the list products in a database.
+*/
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  imageHref: string;
+  description: string;
+}
+
 /**
  * Each description was generated using a prompt similar to "Come up with a lengthy description for these shoes" including a photo of the product.
  */
-const PRODUCTS = [
+const PRODUCTS: Product[] = [
   { id: '1', name: 'Beige loafers', price: 50.00, imageHref: '/products/beige-loafers.png', description: `These sophisticated loafers are crafted from supple suede in a versatile neutral tone. The classic tassel detail adds a touch of refinement, making them perfect for both casual and semi-formal occasions.  The Goodyear welted construction ensures durability and longevity, while the leather lining and cushioned insole provide exceptional comfort. A timeless addition to any gentleman's wardrobe.` },
   { id: '2', name: 'Black boots', price: 80.00, imageHref: '/products/black-boots.png', description: `These stylish leather boots are designed to elevate your everyday style while providing exceptional comfort and durability. Crafted from high-quality leather, these boots feature a sleek silhouette with a round toe and a chunky heel. The boots have a zipper closure for easy on and off, and the unique textured pattern on the leather adds a touch of sophistication. The interior of the boots is lined with soft leather for a luxurious feel, and the cushioned footbed ensures all-day comfort.` },
   { id: '3', name: 'Purple sneakers', price: 60.00, imageHref: '/products/purple-sneakers.png', description: `These lavender canvas sneakers offer a fresh take on classic casual footwear. The minimalist design features a low-top silhouette with a traditional lace-up closure, ensuring a secure and adjustable fit. The vibrant lavender hue adds a pop of color to any outfit, while the durable canvas construction promises long-lasting wear. The cushioned footbed provides exceptional comfort, making them perfect for everyday activities. Pair these sneakers with jeans, shorts, or skirts for a trendy and effortless look.` },
@@ -13,4 +26,10 @@ const PRODUCTS = [
   { id: '9', name: 'White sneakers', price: 75.00, imageHref: '/products/white-sneakers.png', description: `These are a classic pair of white leather sneakers. The shoes have a minimalist design with a low profile. They are made from full-grain leather for the upper and a durable rubber sole. The shoes have a lace-up closure with flat cotton laces. The shoes are finished with subtle stitching details and a comfortable padded insole. They are perfect for everyday wear and can be dressed up or down.` },
 ];
 
-export { PRODUCTS };
+// This is an "async" function (for future-proofing) in case we decide to maintain the list of products in a database
+async function getProductById(productId: string): Promise<Product | undefined> {
+  return PRODUCTS.find(product => product.id === productId);
+}
+
+export { PRODUCTS, getProductById };
+export type { Product };
