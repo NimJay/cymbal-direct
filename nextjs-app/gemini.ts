@@ -2,8 +2,10 @@
 This file interfaces with the Gemini (large language model) on Google Cloud.
 */
 
-import { activePrompt } from "./active-prompt";
-import { GenerateContentRequest, VertexAI, HarmBlockThreshold, SafetySetting, HarmCategory, IllegalArgumentError, Content, ToolConfig, Tool, Part, FunctionCall, FunctionCallPart, FunctionResponsePart } from '@google-cloud/vertexai';
+import {
+  GenerateContentRequest, VertexAI, HarmBlockThreshold, SafetySetting, HarmCategory,
+  IllegalArgumentError, Content, ToolConfig, Tool, FunctionCallPart, FunctionResponsePart,
+} from '@google-cloud/vertexai';
 
 const generationConfig = {
   temperature: 0.2, // Lower values = less creative, more predictable, more factually accurate
@@ -36,7 +38,11 @@ async function fetchResponseFromGemini(
   tools: Tool[],
   toolConfig: ToolConfig,
   functionCallHandler: (functionCalls: FunctionCallPart[]) => Promise<FunctionResponsePart[]>,
-): Promise<Part[]> {
+  recursionDepth: number = 0,
+): Promise<string> {
+  if (recursionDepth > 3) {
+    throw new Error(`Maximum recursion depth exceeded. Gemini keeps making function calls.`);
+  }
   // The GOOGLE_CLOUD_PROJECT environment variable is automatically set by Google Cloud
   // for containers you run inside Cloud Run.
   const googleCloudProjectId = process.env.GOOGLE_CLOUD_PROJECT;
@@ -56,33 +62,31 @@ async function fetchResponseFromGemini(
     console.debug(`Sending message to Gemini Contents: ${JSON.stringify(contents)}`);
     const result = await generativeModel.generateContent(request);
     const candidates = result?.response?.candidates;
-    console.log(`Got response from Gemini ${JSON.stringify(candidates[0].content)}`);
+    console.debug(`Got response from Gemini:\n${JSON.stringify(candidates)}`);
+    // Parse and handle the response
     if (Array.isArray(candidates)) {
       const parts = candidates[0].content.parts;
-      const functionCallParts = parts.filter(part => part.functionCall);
+      const functionCallParts = parts.filter(part => part.functionCall) as FunctionCallPart[];
       const hasFunctionCallPart = functionCallParts.length > 0;
+      // Get responses for all function calls requested by Gemini
       if (hasFunctionCallPart) {
-        const functionResponseParts = await functionCallHandler(functionCallParts as FunctionCallPart[]);
+        const functionResponseParts = await functionCallHandler(functionCallParts);
         const newContents = [...contents]; // Shallow copy
-        functionResponseParts.forEach((part, index) => {
-          newContents.push({
-            parts: [functionCallParts[index]],
-            role: 'MODEL',
-          });
-          newContents.push({
-            parts: [part],
-            role: '',
-          });
+        functionResponseParts.forEach((functionResponsePart, index) => {
+          newContents.push({ parts: [functionCallParts[index]], role: 'MODEL' });
+          newContents.push({ parts: [functionResponsePart], role: '' });
         });
+        // Invoke recursively until Gemini responds with just text (no function calls)
         return fetchResponseFromGemini(
           systemInstruction,
           newContents,
           tools,
           toolConfig,
           functionCallHandler,
+          recursionDepth + 1,
         );
       }
-      return parts;
+      return parts[parts.length - 1].text || '';
     }
   } catch (error) {
     if (error instanceof IllegalArgumentError) {
@@ -96,7 +100,7 @@ async function fetchResponseFromGemini(
     }
     throw error;
   }
-  return [];
+  return '';
 }
 
 export { fetchResponseFromGemini };

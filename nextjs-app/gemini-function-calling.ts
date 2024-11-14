@@ -1,4 +1,8 @@
-import { Content, FunctionCallingMode, FunctionCallPart, FunctionDeclarationSchemaType, FunctionResponsePart, Part, Tool, ToolConfig } from "@google-cloud/vertexai";
+/*
+This file contains logic related to Gemini's function calling.
+*/
+
+import { FunctionCallingMode, FunctionCallPart, FunctionDeclarationSchemaType, FunctionResponsePart, Tool, ToolConfig } from "@google-cloud/vertexai";
 import { getOrderStatus } from "./order-status";
 
 const TOOL_CONFIG_FOR_GEMINI: ToolConfig = {
