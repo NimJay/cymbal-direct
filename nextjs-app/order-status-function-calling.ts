@@ -3,8 +3,7 @@ import { getOrderStatus } from "./order-status";
 
 const TOOL_CONFIG_FOR_GEMINI: ToolConfig = {
   functionCallingConfig: {
-    mode: FunctionCallingMode.ANY,
-    allowedFunctionNames: ['get_order_status_by_order_reference_number'],
+    mode: FunctionCallingMode.AUTO,
   },
 };
 
