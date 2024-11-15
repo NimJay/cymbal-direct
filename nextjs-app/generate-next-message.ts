@@ -8,7 +8,7 @@ import { activePrompt } from "./active-prompt";
 import { Message } from "./conversation";
 import { fetchResponseFromGemini } from "./gemini";
 import { getProductsRelatedToText } from "./related-products";
-import { getFunctionResponseParts, TOOL_CONFIG_FOR_GEMINI, TOOLS_FOR_GEMINI } from "./order-status-function-calling";
+import { getFunctionResponseParts, TOOL_CONFIG_FOR_GEMINI, TOOLS_FOR_GEMINI } from "./gemini-function-calling";
 
 async function buildContentsToSendToGemini(messages: Message[]): Promise<Content[]> {
   // TODO: Remove this temporary "Hi" Content. As of Nov 4, having a FunctionResponsePart in an even index doesn't work. So I've temporarily introduced this "Hi" from the "USER".
@@ -56,12 +56,10 @@ async function generateNextMessageUsingGemini(messages: Message[]) {
   } catch (error) {
     console.warn(`Failed to include list of related products in system instruction sent to Gemini.`);
   }
-  const partsFromGemini = await fetchResponseFromGemini(
+  return await fetchResponseFromGemini(
     systemInstruction, contents, TOOLS_FOR_GEMINI, TOOL_CONFIG_FOR_GEMINI,
     getFunctionResponseParts,
   );
-  const textResponse = partsFromGemini[partsFromGemini.length - 1].text;
-  return textResponse;
 }
 
 export { generateNextMessageUsingGemini };
