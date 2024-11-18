@@ -11,6 +11,7 @@ module "project_services" {
     "cloudresourcemanager.googleapis.com",
     "compute.googleapis.com",
     "storage.googleapis.com",
+    "dlp.googleapis.com", # Data Loss Prevention API (for Sensitive Data Protection)
   ]
 }
 
