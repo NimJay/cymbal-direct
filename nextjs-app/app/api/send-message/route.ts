@@ -7,6 +7,7 @@ import { activePrompt } from "../../../active-prompt";
 import { Conversation } from "../../../conversation";
 import { createDocument, getDocumentById, updateDocument } from "../../../database";
 import { generateNextMessageUsingGemini } from "../../../generate-next-message";
+import { redactSensitiveData } from "../../../redact-sensitive-data";
 
 export async function POST(request: Request) {
   const { conversationId, messageText } = await request.json() as { conversationId: string; messageText: string };
@@ -24,10 +25,16 @@ export async function POST(request: Request) {
     conversation = constructNewConversation();
   }
 
+  // Redact (censor) sensitive info in the user's message
+  const messageTextSanitized = await redactSensitiveData(
+    messageText,
+    ['CREDIT_CARD_NUMBER'],
+  );
+
   // Add the user's new message
   const newMessageByUser = {
     isByBot: false,
-    text: messageText,
+    text: messageTextSanitized,
     createTime: new Date().getTime(),
   };
   conversation.messages.push(newMessageByUser);
