@@ -30,7 +30,7 @@ This section describes the cloud architecture of Cymbal Direct, and how various 
 * **Gemini** - The web app accesses the Gemini API through Vertex AI which hosts many other AI models.
     The web application uses Gemini's function calling feature to provide the Gemini model with access to JavaScript functions that can correctly extract status of customers' orders.
     If the user were to ask for a status update on their order, Gemini will ask the web application to invoke the JavaScript function.
-* **NoSQL database** - Data such as conversations are stored in a Firestore database.
+* **NoSQL database** - Data such as conversations is stored in a Firestore database.
 
 ## Run on your machine
 
